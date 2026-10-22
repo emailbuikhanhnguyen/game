@@ -1,7 +1,10 @@
 name: Build APK
 on:
   push:
+    branches: [main]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,3 +25,13 @@ jobs:
         with:
           name: BePhieuLuu-apk
           path: BePhieuLuu.apk
+      - name: Publish APK to apk branch
+        run: |
+          mkdir out && cp BePhieuLuu.apk out/
+          cd out
+          git init -q -b apk
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add BePhieuLuu.apk
+          git commit -q -m "APK build ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" apk
